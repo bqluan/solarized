@@ -19,9 +19,9 @@
 " ---------------------------------------------------------------------
 " OPTIONS:
 " ---------------------------------------------------------------------
-" See the "solarized.txt" help file included with this colorscheme (in the 
-" "doc" subdirectory) for information on options, usage, the Toggle Background 
-" function and more. If you have already installed Solarized, this is available 
+" See the "solarized.txt" help file included with this colorscheme (in the
+" "doc" subdirectory) for information on options, usage, the Toggle Background
+" function and more. If you have already installed Solarized, this is available
 " from the Solarized menu and command line as ":help solarized"
 "
 " ---------------------------------------------------------------------
@@ -36,7 +36,7 @@
 "     and unarchive the file.
 " 2.  Move `solarized.vim` to your `.vim/colors` directory.
 " 3.  Move each of the files in each subdirectories to the corresponding .vim
-"     subdirectory (e.g. autoload/togglebg.vim goes into your .vim/autoload 
+"     subdirectory (e.g. autoload/togglebg.vim goes into your .vim/autoload
 "     directory as .vim/autoload/togglebg.vim).
 "
 " RECOMMENDED PATHOGEN INSTALLATION OPTION:
@@ -219,6 +219,7 @@ call s:SetOption("termcolors",16)
 call s:SetOption("contrast","normal")
 call s:SetOption("visibility","normal")
 call s:SetOption("diffmode","normal")
+call s:SetOption("hitab",0)
 call s:SetOption("hitrail",0)
 call s:SetOption("menu",1)
 
@@ -989,6 +990,24 @@ hi! link pandocMetadataTitle             pandocMetadata
 "
 autocmd GUIEnter * if (s:vmode != "gui") | exe "colorscheme " . g:colors_name | endif
 "}}}
+" Highlight Tab {{{
+" Experimental: Different highlight when on cursorline
+function! s:SolarizedHiTab()
+    if g:solarized_hitab==0
+        hi! clear solarizedTab
+    else
+        syn match solarizedTab "\t*"
+        exe "hi! solarizedTab " .s:fmt_none .s:fg_red .s:bg_red .s:sp_red
+    endif
+endfunction
+augroup SolarizedHiTab
+    autocmd!
+    if g:solarized_hitab==1
+        autocmd! Syntax * call s:SolarizedHiTab()
+        autocmd! ColorScheme * if g:colors_name == "solarized" | call s:SolarizedHiTab() | else | augroup! s:SolarizedHiTab | endif
+    endif
+augroup END
+" }}}
 " Highlight Trailing Space {{{
 " Experimental: Different highlight when on cursorline
 function! s:SolarizedHiTrail()
@@ -996,9 +1015,9 @@ function! s:SolarizedHiTrail()
         hi! clear solarizedTrailingSpace
     else
         syn match solarizedTrailingSpace "\s*$"
-        exe "hi! solarizedTrailingSpace " .s:fmt_undr .s:fg_red .s:bg_none .s:sp_red
+        exe "hi! solarizedTrailingSpace " .s:fmt_none .s:fg_red .s:bg_red .s:sp_red
     endif
-endfunction  
+endfunction
 augroup SolarizedHiTrail
     autocmd!
     if g:solarized_hitrail==1
@@ -1065,10 +1084,11 @@ function! SolarizedMenu()
         amenu &Solarized.&Diff\ Mode.&Normal\ Diff\ Mode :let g:solarized_diffmode="normal"  \| colorscheme solarized<CR>
         amenu &Solarized.&Diff\ Mode.&High\ Diff\ Mode   :let g:solarized_diffmode="high"    \| colorscheme solarized<CR>
 
+        if g:solarized_hitab==0 | let l:hitabswitch="On" | else | let l:hitabswitch="Off" | endif
+        exe "amenu &Solarized.&Experimental.&Turn\\ Highlight\\ Tab\\ ".l:hitabswitch." :let g:solarized_hitab=(abs(g:solarized_hitab-1)) \\| colorscheme solarized<CR>"
+
         if g:solarized_hitrail==0 | let l:hitrailswitch="On" | else | let l:hitrailswitch="Off" | endif
         exe "amenu &Solarized.&Experimental.&Turn\\ Highlight\\ Trailing\\ Spaces\\ ".l:hitrailswitch." :let g:solarized_hitrail=(abs(g:solarized_hitrail-1)) \\| colorscheme solarized<CR>"
-        an    &Solarized.&Experimental.-sep-               <Nop>
-        amenu &Solarized.&Experimental.&Help:\ HiTrail    :help 'solarized_hitrail'<CR>
 
         an    &Solarized.-sep1-                          <Nop>
 
